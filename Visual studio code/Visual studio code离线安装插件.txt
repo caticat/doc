@@ -1,0 +1,101 @@
+http://www.cnblogs.com/majianguo/p/6561147.html
+
+公司研发区不能连接公网，使用Visual studio code(vsc)写Golang代码需要安装Go插件，下面介绍下，vsc离线安装插件的步骤。以安装lukehoban.Go为例。
+
+打开官网首页： https://code.visualstudio.com/
+
+ 
+
+ 
+
+点击 Extentions，然后点击右端的图片链接，进入插件下载页面。(或者直接输入https://marketplace.visualstudio.com/VSCode )
+
+ 
+
+ 
+
+搜索要安装的插件，打开插件对应的页面，
+
+ 
+
+ 
+
+需要在这个页面提取如下信息：
+
+Publisher name 发布者名称
+
+Version        插件版本
+
+Extension name 插件名称
+
+拷贝记录插件的URL， https://marketplace.visualstudio.com/items?itemName=lukehoban.Go
+
+ 
+
+通过url或页面内容可以知道发布者名称是 lukehoban
+
+插件名称 Go
+
+最新插件版本是vsc 插件页面查到 0.6.55
+
+ 
+
+ 
+
+插件离线下载的URL 模板如下：
+
+https://${publisher}.gallery.vsassets.io/_apis/public/gallery/publisher/${publisher}/extension/${extension name}/${version}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage
+
+ 
+
+ 
+
+将前面提取的三个字段应用到模板，结果如下：
+
+https://lukehoban.gallery.vsassets.io/_apis/public/gallery/publisher/lukehoban/extension/Go/0.6.55/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage
+
+ 
+
+通过上面的url下载，默认文件名为 ： Microsoft.VisualStudio.Services.VSIXPackage
+
+ 
+
+将文件后缀改为 .vsix
+
+ 
+
+ 
+
+ 
+
+从VSIX安装。。。，选择下载的插件安装即可。
+
+ 
+
+这个Go插件需要一些工具，联网环境下会自动安装
+
+gocode: go get -u -v github.com/nsf/gocode
+
+godef: go get -u -v github.com/rogpeppe/godef
+
+gogetdoc: go get -u -v github.com/zmb3/gogetdoc
+
+golint: go get -u -v github.com/golang/lint/golint
+
+go-outline: go get -u -v github.com/lukehoban/go-outline
+
+goreturns: go get -u -v sourcegraph.com/sqs/goreturns
+
+gorename: go get -u -v golang.org/x/tools/cmd/gorename
+
+gopkgs: go get -u -v github.com/tpng/gopkgs
+
+go-symbols: go get -u -v github.com/newhook/go-symbols
+
+guru: go get -u -v golang.org/x/tools/cmd/guru
+
+gotests: go get -u -v github.com/cweill/gotests/...
+
+ 
+
+离线环境下安装这些插件有个非常简单的方法：找一台联网环境并且已经部署好环境的电脑，将%GOPATH%/bin目录下的exe拷贝到离线环境电脑的%GOPATH%/bin即可。

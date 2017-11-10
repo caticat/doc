@@ -1,0 +1,390 @@
+官方中文手册(Pro Git)
+	https://git-scm.com/book/zh/v1
+好用的学习网站
+	http://learngitbranching.js.org/
+	http://try.github.io/
+Markdown
+	https://guides.github.com/features/mastering-markdown/
+
+安装
+	yum install -y git
+
+帐号创建
+	useradd git
+	passwd git
+	vim /etc/passwd
+		将git用户的/bin/bash替换成/usr/bin/git-shell阻止登录
+
+帮助
+	git help log
+		命令前面加help即可
+
+设置提交帐号地址
+	git config --global user.name "pan"
+	git config --global user.email "catifish@163.com"
+		global是全局的，可以不设置全局的
+
+初始化
+	git init
+		创建一个基本仓库配置
+
+复制一个git仓库
+	git clone src tar
+		将src的仓库复制到tar中
+
+添加文件索引
+	git add fileName
+	git add .
+		建立索引，没有索引的文件不会被提交
+
+删除文件索引
+	git rm fileName
+		删除索引，同时删除本地文件
+
+停止跟踪已经添加到版本库的文件
+	git rm --cached < file name >
+	在.gitignore里面添加相应的文件名
+
+重命名文件索引
+	git mv oriName tarName
+		改名
+
+查看索引状态
+	git staus
+		显示当前索引状态
+
+提交
+	git commit
+	git commit -m "comment"
+		一次性提交所有建立索引的内容
+	git commit --amend
+		修改最后一次提交的注释(不需要使用rebase)
+
+查看分支名
+	git branch
+		只有名字
+
+查看分支详细信息
+	git show-branch
+	git show-branch branchName
+		显示所有或制定分支的详细信息
+
+创建分支
+	git branch branchName
+	git checkout -b branchName
+		创建一个叫branchName的分支
+		后面一种保留现有文件更改，创建一个叫branchName的分支
+
+切换分支
+	git checkout branchName
+		切换到branchName的分支
+
+删除分支
+	git branch -d branchName
+		不能删除自己和包含不存在于当前分支提交的分支
+
+删除分支远程
+	git push origin --delete branchName
+	git push origin :branchName
+
+查看已经合并过的分支
+	git branch --merged
+
+查看没有合并到当前工作分支的分支
+	git branch --no-merged
+
+比较和树索引
+	git diff
+		本地工作目录文件和索引树做比较
+
+比较和blob文件
+	git diff HEAD
+		本地工作目录文件和最后一次提交内容做比较
+
+比较索引树和blob文件
+	git diff --cached
+		树索引和最后一次提交内容做比较
+
+比较不同的提交
+	git diff commit1 commit2
+		两次提交分别比较
+
+合并分支
+	git merge branchName
+		将branchName合并到当前分支
+
+撤销提交
+	git reset HEAD
+		回滚上次的提交(代码不会有变化，可以合并提交，修改提交注释)
+		参数
+			--mixed	默认，保留本地修改，同时移动index指向
+			--soft	保留本地修改，但不移动index指向
+			--hard	忽略上次提交后的本地修改
+
+回滚合并
+	git reset --hard
+	git reset --hard HEAD
+		回滚到合并前最后一次提交的状态，如果合并前有代码没有提交，就没有了
+
+回滚到某个版本
+	git reset --hard 提交id(可通过reflog查看)
+
+清空已提交的索引
+	git reset
+	git reset --mixed
+		reset默认就是mixed
+		reset的作用是撤销提交
+
+删除某个文件的索引
+	git reset fileName
+		只是删除文件索引
+
+查看提交版本流程图
+	git log --graph --oneline
+		简单的查看提交、合并流程图
+
+查看分支之间的提交差异
+	git log --oneline branchName1 ^branchName2
+
+查看回退之前的日志
+	git reflog
+
+将某次提交的内容合并到另一个分支中(引入一个其他分支修改的bug内容用)
+	git cherry-pick branchName~2
+		后面的名字为具体修正对应的位置
+
+将某次提交回滚
+	git revert commitPoint
+		撤销某次提交的内容，并产生一个新的提交
+
+创建tag标签
+	git tag tagName
+	git tag -a tagName -m "describe"
+		关键版本标记等，也可用于回滚
+
+显示标签信息
+	git show tagName
+		可以获取标签的详细信息，包括id
+
+删除标签
+	git tag -d tagName
+		删除本地标签
+	git push origin :tagName
+	git push origin :refs/tags/tagName
+		删除远程仓库标签
+
+推送标签到仓库
+	git push origin tagName
+		推送某个标签
+	git push origin --tags
+		推送所有标签
+
+忽略特定文件
+	.gitignore
+		创建该文件，并在文件中添加需要忽略的文件名和文件夹即可
+
+配置别名
+	git config --global alias.last 'log -1'
+	git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+使用别名
+	git last
+	git lg
+
+本地仓库搭建流程
+	创建git的用户
+		useradd git
+		passwd git
+
+	将git用户的远程登录权限去掉
+		which git-shell	找到git-shell的路径
+		vim /etc/passwd	将git的/bin/bash修改为/usr/bin/git-shell(上面的路径)
+
+	初始化git仓库
+		git init --bare depotName.git
+			不会在仓库直接工作，只负责存储内容，名字后面约定为.git结尾
+
+	修改创建的仓库权限
+		chown -R git:git depotName.git
+
+	权限问题
+		将类似目录中的/home/git/.ssh/authorized_keys文件添加认可机器的id_rsa.pub即可
+	
+远程仓库使用流程
+	git clone ssh://git@ip:port/path/deportName.git
+		修改远程仓库路径的方法：
+			git remote set-url origin ssh://git@ip:port/path/deportName.git
+
+配置文件说明
+	git config是用于进行一些配置设置，有三种不同的方式来指定这些配置适用的范围：
+		git config	针对一个git仓库
+		git config --global	针对一个用户
+		git config --system	针对一个系统，因为是针对整个系统的，所以必须使用sudo权限
+
+rebase的功能
+	git rebase branchName
+		将分支的修改合并到当前工作分支上，
+		冲突的话需要手动修改，修改完成后git add 冲突文件
+		git rebase --continue即可
+		rebase后，branch内容不变，当前工作分支和branch合并后的内容一起提交到最后一次提交，
+		工作目录clean
+	git rebase -i branchName~2	(后面是回退的步数)
+		整合提交
+		可以将提交整合成1次或n次提交，编辑已经做过的提交，修改注释，
+		具体命令功能可以参看运行时的提示
+
+merge的功能
+	git merge branchName
+		将分支的修改合并到当前工作分支上，
+		所有冲突一次报出
+		修正完冲突后，可以手动再次提交合并后的结果
+
+与github的连接
+	第1步：创建SSH Key。在用户主目录下，看看有没有.ssh目录，如果有，再看看这个目录下有没有id_rsa和id_rsa.pub这两个文件，如果已经有了，可直接跳到下一步。如果没有，打开Shell（Windows下打开Git Bash），创建SSH Key：
+		ssh-keygen -t rsa -C "youremail@example.com"
+		你需要把邮件地址换成你自己的邮件地址，然后一路回车，使用默认值即可，由于这个Key也不是用于军事目的，所以也无需设置密码。
+		如果一切顺利的话，可以在用户主目录里找到.ssh目录，里面有id_rsa和id_rsa.pub两个文件，这两个就是SSH Key的秘钥对，id_rsa是私钥，不能泄露出去，id_rsa.pub是公钥，可以放心地告诉任何人。
+
+	第2步：登陆GitHub，打开“Account settings”，“SSH Keys”页面：
+		然后，点“Add SSH Key”，填上任意Title，在Key文本框里粘贴id_rsa.pub文件的内容
+		点“Add Key”，你就应该看到已经添加的Key
+		为什么GitHub需要SSH Key呢？因为GitHub需要识别出你推送的提交确实是你推送的，而不是别人冒充的，而Git支持SSH协议，所以，GitHub只要知道了你的公钥，就可以确认只有你自己才能推送。
+		当然，GitHub允许你添加多个Key。假定你有若干电脑，你一会儿在公司提交，一会儿在家里提交，只要把每台电脑的Key都添加到GitHub，就可以在每台电脑上往GitHub推送了。
+		最后友情提示，在GitHub上免费托管的Git仓库，任何人都可以看到喔（但只有你自己才能改）。所以，不要把敏感信息放进去。
+
+reset的功能
+	git reset HEAD~1
+		撤销到pos为止的提交,上面的命令是撤销最后一次提交（可以改变提交后的流程，修改提交历史记录），
+		但是至今为止的所有改动，都在工作区内，不会有丢失。
+
+revert的功能
+	git revert HEAD
+		工作目录切换到倒数第二次提交后的状态，去掉倒数第一次提交的所有内容，并创建一个新的提交(不修改历史提交，只是取到以前的版本，盖到本地，同时提交到版本库)
+		例子说明：
+			原始版本：1,2,3
+			运行：git revert HEAD
+			当前版本：1,2,3,2
+
+checkout到某一版本
+	git checkout 3307a59664dbdd988e7c813c1d2791f1d89fb013
+	git checkout 3307a59664
+		工作目录整体切换到某个版本
+	git checkout 3307a59664 fileName
+		fileName切换到某个版本
+
+stash的使用
+	可以临时存储当前工作状态，用于后面的还原
+	git stash
+		保存临时状态去做别的
+		增加注释:
+			git stash save "注释内容"
+	......
+		切换到其他的branch去做其他事情，完成后切换回最后工作的分支
+	
+	git stash list
+		显示所有暂存的状态
+
+	git stash pop
+		还原最后一次暂存的状态并删除该stash记录
+
+	git stash apply
+		还原最后一次暂存的状态
+
+	git stash drop
+		删除最后一次暂存的状态
+
+	git stash apply stash@{0}
+		还原指定标记的stash的状态
+
+	git stash drop stash@{0}
+		删除制定的stash内容
+	
+	git stash clear
+		清空所有stash内容
+	
+git blame fileName
+	查看文件被谁修改了
+
+git count-objects -v
+	查看git数据库的对象统计
+
+git gc
+	数据过多时可以手动gc进行清理,加速git操作
+
+ssh_keygen
+	使用方法：
+		ssh-keygen -t rsa -C "youremail@example.com"
+		-t	类型
+		-C	文字说明提示注释
+
+
+_____________________________
+
+
+checkout远程分支
+git  checkout -b dev-zhengqi  origin/dev-zhengq
+
+$ git push origin test:master         // 提交本地test分支作为远程的master分支
+$ git push origin test:test              // 提交本地test分支作为远程的test分支
+
+如果想删除远程的分支呢？类似于上面，如果:左边的分支为空，那么将删除:右边的远程的分支。
+
+$ git push origin :test              // 刚提交到远程的test将被删除，但是本地还会保存的，不用担心
+
+_____________________________
+
+
+更新fork别人的项目
+
+	1	关联fork的项目和原始项目
+			git remote add 名字 地址
+				唯一一次的操作，fork后进行
+
+	2	同步更新原始项目
+			git fetch 名字
+				抓去原始项目的最新内容
+	3	合并原始项目的更新到本地分支
+			git merge 名字/分支
+	4	提交保存
+			git commit -am 注释说明
+	5	提交到自己的远程仓库
+			git push origin 分支
+
+_________________________________
+
+常用的config:
+
+[diff]
+        tool = bc3
+[difftool "bc3"]
+        cmd = "\"c:/program files (x86)/beyond compare 3/bcomp.exe\" \"$LOCAL\" \"$REMOTE\""
+[difftool]
+        prompt = false
+[merge]
+        tool = bc3
+[mergetool "bc3"]
+        cmd = "\"c:/program files (x86)/beyond compare 3/bcomp.exe\" \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\""
+[mergetool]
+        prompt = false
+[alias]
+        lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+
+_________________________________
+
+常见问题:
+
+gitignore文件中添加新过滤文件，但是此文件已经提交到远程库，如何解决？
+
+第一步，为避免冲突需要先同步下远程仓库
+git pull
+
+第二步，在本地项目目录下删除缓存
+git rm -r --cached .
+
+第三步，再次add所有文件
+输入以下命令，再次将项目中所有文件添加到本地仓库缓存中
+git add .
+
+第四步，添加commit，提交到远程库
+git commit -m "filter new files"
+git push
