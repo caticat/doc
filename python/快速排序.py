@@ -2,9 +2,7 @@
 
 import math
 
-def sort(orderedList):
-    pass
-
+# 二分法查找写法一
 def key(orderedList, value, begin = 0, end = -1):
     if end == -1:
         end = len(orderedList)
@@ -22,6 +20,7 @@ def key(orderedList, value, begin = 0, end = -1):
         begin = index + 1
     return key(orderedList, value, begin, end)
 
+# 二分法查找写法二
 def key1(orderedList, value):
     begin = 0
     end = len(orderedList)
@@ -47,11 +46,30 @@ def angleToRadius(angle):
 
 def qtest(list):
     lc = list.copy()
-    qsort(list)
-    qsort_2(lc, 0, len(lc) - 1)
+    qsort(list, 0, len(list) - 1)
+    qsort_2(lc)
     print(list, lc)
 
-def qsort(data, front = 0, back = 1, init = True):
+# 快速排序写法一
+def qsort(data, low, high):
+    if low >= high:
+        return
+    front = low
+    back = high
+    key = data[front]
+    while front < back:
+        while front < back and data[back] >= key:
+            back -= 1
+        data[front] = data[back]
+        while front < back and data[front] <= key:
+            front += 1
+        data[back] = data[front]
+    data[front] = key
+    qsort_2(data, low, front - 1)
+    qsort_2(data, front + 1, high)
+
+# 快速排序写法二
+def qsort_2(data, front = 0, back = 1, init = True):
     # 条件校验
     if front >= back:
         return
@@ -85,25 +103,8 @@ def qsort(data, front = 0, back = 1, init = True):
                 i += 1
 
     # 递归
-    qsort(data, front, middle - 1, False)
-    qsort(data, middle + 1, back, False)
-
-def qsort_2(data, low, high):
-    if low >= high:
-        return
-    front = low
-    back = high
-    key = data[front]
-    while front < back:
-        while front < back and data[back] >= key:
-            back -= 1
-        data[front] = data[back]
-        while front < back and data[front] <= key:
-            front += 1
-        data[back] = data[front]
-    data[front] = key
-    qsort_2(data, low, front - 1)
-    qsort_2(data, front + 1, high)
+    qsort_2(data, front, middle - 1, False)
+    qsort_2(data, middle + 1, back, False)
 
 if __name__ == "__main__":
     print("开始")
