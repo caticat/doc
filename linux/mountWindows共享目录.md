@@ -27,7 +27,7 @@
 5. 在linux上挂载目录(linux)
 	1. 创建共享目录`makedir`
 	2. 挂载共享目录`mount -t cifs -o username='帐号名',password='密码',file_mode=0777,dir_mode=0777,iocharset=utf8,sec=ntlm //ip地址/共享目录名 刚创建的目录的路径`
-		1. `-t`代表硬盘格式
+		1. `-t`代表协议格式cifs(Common Internet File System)
 		2. `xxx_mode`代表文件权限
 		3. `iocharset`代表通信字符编码格式
 		4. `sec`标识密码hash格式,我这边测试使用`ntlm`成功
