@@ -2,6 +2,7 @@
 
 # 插入排序
 # 时间复杂度:O(n^2)
+# 稳定排序
 
 def sortInsert(argv):
 	l = len(argv)
