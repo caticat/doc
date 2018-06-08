@@ -2383,11 +2383,340 @@ backup 路径 # 备份数据到leveldb文件
 
 leveldb为什么是7层
 
+redis-server相关编译文件(makefile里面找出来的)
+```
+adlist.c
+quicklist.c
+ae.c
+anet.c
+dict.c
+server.c
+sds.c
+zmalloc.c
+lzf_c.c
+lzf_d.c
+pqsort.c
+zipmap.c
+sha1.c
+ziplist.c
+release.c
+networking.c
+util.c
+object.c
+db.c
+replication.c
+rdb.c
+t_string.c
+t_list.c
+t_set.c
+t_zset.c
+t_hash.c
+config.c
+aof.c
+pubsub.c
+multi.c
+debug.c
+sort.c
+intset.c
+syncio.c
+cluster.c
+crc16.c
+endianconv.c
+slowlog.c
+scripting.c
+bio.c
+rio.c
+rand.c
+memtest.c
+crc64.c
+bitops.c
+sentinel.c
+notify.c
+setproctitle.c
+blocked.c
+hyperloglog.c
+latency.c
+sparkline.c
+redis-check-rdb.c
+geo.o
+```
+
+redisLv文件
+```
+adlist.o
+ae.o
+anet.o
+dict.o
+redis.o
+sds.o
+zmalloc.o
+lzf_c.o
+lzf_d.o
+pqsort.o
+zipmap.o
+sha1.o
+ziplist.o
+release.o
+networking.o
+util.o
+object.o
+db.o
+replication.o
+rdb.o
+t_string.o
+t_list.o
+t_set.o
+t_zset.o
+t_hash.o
+config.o
+aof.o
+pubsub.o
+multi.o
+debug.o
+sort.o
+intset.o
+syncio.o
+migrate.o
+endianconv.o
+slowlog.o
+scripting.o
+bio.o
+rio.o
+rand.o
+memtest.o
+crc64.o
+bitops.o
+sentinel.o
+notify.o
+setproctitle.o
+hyperloglog.o
+latency.o
+sparkline.o
+leveldb.o
+```
 
 
+#### 大模块整理
+
+- RedisLv
+  - 内存管理
+    - 本质
+      实际是对malloc的封装,在所有类型的前面一位增加数据长度
+    - 功能
+      - 程序内部统计内存使用
+      - 便于对动态长度的数据进行内存扩容
+    - 函数
+      - `zmalloc`
+      - `zcalloc`
+      - `zrealloc`
+      - 等
+    - 数据结构
+      - 字符串
+      - 哈希
+      - 列表
+      - 集合
+      - 有序集合
+  - 事件系统
+    - 文件事件
+      - 处理方式:linux系统下使用`epoll`来做处理
+      - 功能:近乎所有的逻辑处理调用(包括网络通信)
+    - 时间事件
+      - 处理方式:定时器轮询
+      - 功能
+        1. 当前客户端连接状态
+        2. 近乎所有后台定时任务
+  - 流程日志
+    - 等级
+      1. DEBUG
+      2. VERBOSE
+      3. NOTICE
+      4. WARNING
+      5. LOG_RAW(无时间记录,其余日志有时间记录)
+    - 记录日志方式
+      使用系统命令`syslog`记录日志
+  - 客户端列表
+    - 数据结构
+      - list
+      - 单独客户端:`redisClient`
+        - 唯一id
+        - socket
+        - 当前使用的数据库指针
+        - 数据输出缓冲
+  - 哨兵模式(2.8版本支持的模式,我们所用的RedisLv中的redis版本是2.8版本,有哨兵,没有cluster)
+    - 功能
+      由哨兵集群来判断master是否可用,当哨兵集群判断master失效时,可以选择由那个slave来代替master进行工作
+  - 主从模式
+    - 组合方式
+      由一个master和多个slave组成的工作群,所有的slave从master里面同步数据,保证和master的数据一直(有延迟)
+    - 功能
+      - 防止数据丢失
+      - 增加查询效率,可以直接在slave上查询而不影响master的工作
+  - 慢日志系统
+    - 功能
+      记录所有执行命令时间过长的命令(有数量限制)
+    - 数据结构
+      队列
+  - BIO系统(后台IO操作)
+    - 描述
+      这是redis用到多线程的地方,默认开启3个线程来处理后台IO操作,
+      redis本身的操作是关闭已打开的文件描述符,aof文件更新,
+      leveldb新增的操作是数据库整体保存在某个路径
+
+### Redis分析
+
+#### 功能点分
+
+- API
+  - 字符串
+  - 哈希
+  - 列表
+  - 集合
+  - 有序集合
+  - 键管理
+- 扩展功能
+  - 慢查询
+  - Shell
+  - Pipeline
+  - 事务
+  - Lua
+  - Bitmaps
+  - HyperLogLog
+  - 发布订阅
+- 持久化
+  - RDB
+  - AOF
+  - LevelDB
+  - 优化
+- 复制
+  - 配置
+  - 建立/断开
+  - 安全性
+  - 传输延迟
+  - 复制过程
+  - 数据同步
+  - 全量复制
+  - 部分复制
+  - 心跳
+  - 异步复制
+  - 读写分离
+  - 主从配置不一致
+  - 规避全量复制
+- 阻塞原因
+- 内存管理
+  - 内存消耗
+  - 内存管理
+  - 内存优化
+- 哨兵
+- 集群
+  - 数据分布
+  - 搭建
+  - 节点通信
+  - 集群伸缩
+  - 请求路由
+  - 故障转移
+  - 集群运维
+- 缓存
+  - 收益和成本
+  - 更新策略
+  - 缓存颗粒度控制
+  - 优化
+- 可能出现的问题
+  - Linux配置优化
+  - flush误操作
+  - 安全
+  - bigkey问题
+- 运维云平台
+- 配置统计
+
+#### 代码分析
+
+50个文件
+
+adlist
+ae
+anet
+b
+bips
+crc64
+db
+debug
+dict
+endiannv
+f
+hypergg
+intset
+latency
+leveldb
+lzf_c
+lzf_d
+memtest
+migrate
+multi
+netrking
+nfig
+object
+pqrt
+pubsub
+r
+rand
+rdb
+redis
+release
+replicatn
+rt
+scripting
+sds
+sentinel
+setpctitle
+sha1
+sparkline
+swg
+sync
+t_hash
+t_list
+t_set
+t_string
+t_zset
+tify
+util
+ziplist
+zipmap
+zmalc
+
+#### 实际关注功能点
+
+- 数据结构
+  - 字符串
+  - 哈希
+  - 列表
+  - 集合
+  - 有序集合
+  - 键管理
+- 持久化
+  - RDB
+  - AOF
+  - LevelDB
+  - 优化
+- 阻塞原因
+- 内存管理
+  - 内存消耗
+  - 内存管理
+  - 内存优化
+- 缓存
+  - 收益和成本
+  - 更新策略
+  - 缓存颗粒度控制
+  - 优化
+- 可能出现的问题
+  - Linux配置优化
+  - flush误操作
+  - 安全
+  - bigkey问题
+- 配置统计
 
 
-
-
-
-
+数据结构相关:
+内存管理(1d)
+字符串+哈希(2d)
+集合+有序集合(2d)
+列表+键管理(2d)
